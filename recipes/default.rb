@@ -18,7 +18,11 @@
 #
 
 include_recipe "apache2"
-include_recipe "mysql::server"
+if default['wordpress']['db']['remote']['host'] == "localhost"
+  include_recipe "mysql::server"
+else
+  include_recipe "mysql::client" 
+end
 include_recipe "php"
 include_recipe "php::module_mysql"
 include_recipe "apache2::mod_php5"
@@ -38,6 +42,7 @@ else
 end
 
 node.set_unless['wordpress']['db']['password'] = secure_password
+node.set_unless['wordpress']['db']['remote']['password'] = node['mysql']['server_root_password']
 node.set_unless['wordpress']['keys']['auth'] = secure_password
 node.set_unless['wordpress']['keys']['secure_auth'] = secure_password
 node.set_unless['wordpress']['keys']['logged_in'] = secure_password
@@ -78,7 +83,7 @@ execute "untar-wordpress" do
 end
 
 execute "mysql-install-wp-privileges" do
-  command "/usr/bin/mysql -u root -p\"#{node['mysql']['server_root_password']}\" < #{node['mysql']['conf_dir']}/wp-grants.sql"
+  command "/usr/bin/mysql -h \"#{node['wordpress']['db']['remote']['host']}\" -u \"#{node['wordpress']['db']['remote']['user']}\" -p\"#{node['wordpress']['db']['remote']['password']}\" < #{node['mysql']['conf_dir']}/wp-grants.sql"
   action :nothing
 end
 
@@ -88,6 +93,7 @@ template "#{node['mysql']['conf_dir']}/wp-grants.sql" do
   group "root"
   mode "0600"
   variables(
+    :host     => node['wordpress']['db']['remote']['host'],
     :user     => node['wordpress']['db']['user'],
     :password => node['wordpress']['db']['password'],
     :database => node['wordpress']['db']['database']
@@ -96,13 +102,13 @@ template "#{node['mysql']['conf_dir']}/wp-grants.sql" do
 end
 
 execute "create #{node['wordpress']['db']['database']} database" do
-  command "/usr/bin/mysqladmin -u root -p\"#{node['mysql']['server_root_password']}\" create #{node['wordpress']['db']['database']}"
+  command "/usr/bin/mysqladmin -h \"#{node['wordpress']['db']['remote']['host']}\" -u \"#{node['wordpress']['db']['remote']['user']}\" -p\"#{node['wordpress']['db']['remote']['password']}\" create #{node['wordpress']['db']['database']}"
   not_if do
     # Make sure gem is detected if it was just installed earlier in this recipe
     require 'rubygems'
     Gem.clear_paths
     require 'mysql'
-    m = Mysql.new("localhost", "root", node['mysql']['server_root_password'])
+    m = Mysql.new(node['wordpress']['db']['remote']['host'], node['wordpress']['db']['remote']['user'], node['wordpress']['db']['remote']['password'])
     m.list_dbs.include?(node['wordpress']['db']['database'])
   end
   notifies :create, "ruby_block[save node data]", :immediately unless Chef::Config[:solo]
@@ -128,6 +134,7 @@ template "#{node['wordpress']['dir']}/wp-config.php" do
   group "root"
   mode "0644"
   variables(
+    :host            => node['wordpress']['db']['remote']['host'],
     :database        => node['wordpress']['db']['database'],
     :user            => node['wordpress']['db']['user'],
     :password        => node['wordpress']['db']['password'],

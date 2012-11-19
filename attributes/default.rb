@@ -24,4 +24,6 @@ default['wordpress']['checksum'] = ""
 default['wordpress']['dir'] = "/var/www/wordpress"
 default['wordpress']['db']['database'] = "wordpressdb"
 default['wordpress']['db']['user'] = "wordpressuser"
+default['wordpress']['db']['remote']['host'] = "locahost"
+default['wordpress']['db']['remote']['user'] = "root"
 default['wordpress']['server_aliases'] = [node['fqdn']]
