@@ -29,6 +29,9 @@ Attributes
 * `node['wordpress']['version']` - Set the version to download. Using 'latest' (the default) will install the most current version.
 * `node['wordpress']['checksum']` - sha256sum of the tarball, make sure this matches for the version! (Not used for 'latest' version.)
 * `node['wordpress']['dir']` - Set the location to place wordpress files. Default is /var/www.
+* `node['wordpress']['db']['remote']['host']` - WordPress will connect to this MySQL remote host. Default is `localhost`
+* `node['wordpress']['db']['remote']['user']` - WordPress will connect to this MySQL remote host with this user. Default is `root`
+* `node['wordpress']['db']['remote']['password']` - WordPress will connect to this MySQL remote host with this password. The default is a randomly generated string.
 * `node['wordpress']['db']['database']` - Wordpress will use this MySQL database to store its data.
 * `node['wordpress']['db']['user']` - Wordpress will connect to MySQL using this user.
 * `node['wordpress']['db']['password']` - Password for the Wordpress MySQL user. The default is a randomly generated string.

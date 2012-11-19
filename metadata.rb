@@ -4,7 +4,7 @@ maintainer_email "cookbooks@opscode.com"
 license          "Apache 2.0"
 description      "Installs/Configures WordPress"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "1.0.0"
+version          "1.0.1"
 
 recipe "WordPress", "Installs and configures WordPress LAMP stack on a single system"
 
@@ -33,6 +33,21 @@ attribute "WordPress/dir",
   :display_name => "WordPress installation directory",
   :description => "Location to place WordPress files.",
   :default => "/var/www/wordpress"
+
+attribute "WordPress/db/remote/host",
+  :display_name => "MySQL Host Database",
+  :description => "WordPress will connect to this MySQL remote host.",
+  :default => "localhost"
+
+attribute "WordPress/db/remote/user",
+  :display_name => "MySQL Host Database User",
+  :description => "WordPress will connect to this MySQL remote host with this user.",
+  :default => "root"
+
+attribute "WordPress/db/remote/password",
+  :display_name => "MySQL Host Database Password",
+  :description => "WordPress will connect to this MySQL remote host with this password.",
+  :default => "randomly generated"
 
 attribute "WordPress/db/database",
   :display_name => "WordPress MySQL database",
