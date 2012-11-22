@@ -18,9 +18,10 @@
 #
 
 include_recipe "apache2"
-if default['wordpress']['db']['remote']['host'] == "localhost"
+if node['wordpress']['db']['remote']['host'] == "localhost"
   include_recipe "mysql::server"
 else
+  ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
   include_recipe "mysql::client" 
 end
 include_recipe "php"
